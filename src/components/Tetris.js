@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { createStage } from '../gameHelpers'
+import { createStage, checkCollision } from '../gameHelpers'
 
 // Styled components
 import { StyledTetris, StyledTetrisWrapper } from './styles/StyledTetris'
@@ -25,17 +25,30 @@ const Tetris = () => {
 
   // dir --> direction to move the tetromino. This function takes care of the left and right position
   const movePlayer = dir => {
-    updatePlayerPos({ x: dir, y: 0 })
+    if (!checkCollision(player, stage, { x: dir, y: 0 })) {
+      updatePlayerPos({ x: dir, y: 0 })
+    }
   }
 
   const startGame = () => {
     // Reset everything (stage and the player). Function called when we click on the start button.
     setStage(createStage())
     resetPlayer()
+    setGameOver(false)
   }
 
   const drop = () => {
-    updatePlayerPos({ x: 0, y: 1, collided: false })
+    if (!checkCollision(player, stage, { x: 0, y: 1 })) {
+      updatePlayerPos({ x: 0, y: 1, collided: false })
+    } else {
+      // Game Over
+      if (player.pos.y < 1) {
+        console.log('Game Over !!')
+        setGameOver(true)
+        setDropTime(null)
+      }
+      updatePlayerPos({ x: 0, y: 0, collided: true })
+    }
   }
 
   const dropPlayer = () => {
